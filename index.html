@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acid Atlas | مرجع اسیدها</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070b10;
+      --s1: #0f1520;
+      --s2: #161e2b;
+      --bd: #243044;
+      --tx: #e7eef7;
+      --mu: #8b9cb5;
+      --dim: #5c6f88;
+      --ac: #38bdf8;
+      --font: 'Vazirmatn', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--tx); font-weight: 400; -webkit-font-smoothing: antialiased; }
+    button, input, select { font: inherit; color: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+
+    .topnav {
+      height: 56px; display: flex; align-items: center; gap: 28px;
+      padding: 0 24px; background: var(--s1); border-bottom: 1px solid var(--bd);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .logo {
+      width: 34px; height: 34px; background: linear-gradient(135deg, #0ea5e9, #22d3ee);
+      color: #070b10; border-radius: 8px; display: grid; place-items: center;
+      font-family: var(--mono); font-weight: 600; font-size: 13px;
+    }
+    .logo sup { font-size: 9px; }
+    .brand-title { font-weight: 500; font-size: 15px; }
+    .brand-sub { font-size: 10px; color: var(--dim); font-family: var(--mono); }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links button { padding: 7px 14px; border-radius: 6px; font-size: 13px; color: var(--mu); }
+    .nav-links button:hover { color: var(--tx); background: var(--s2); }
+    .nav-links button.active { background: var(--s2); color: var(--ac); }
+    .top-actions { margin-inline-start: auto; display: flex; align-items: center; gap: 12px; }
+    .lang-btn {
+      padding: 5px 12px; border: 1px solid var(--bd); border-radius: 6px;
+      font-size: 12px; font-family: var(--mono); color: var(--ac);
+    }
+    .lang-btn:hover { border-color: var(--ac); }
+    .count { font-size: 11px; color: var(--dim); font-family: var(--mono); }
+
+    .main { flex: 1; padding: 24px; max-width: 1240px; width: 100%; margin: 0 auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .page-header h1 { font-size: 22px; font-weight: 500; }
+    .subtitle { font-size: 13px; color: var(--mu); margin-top: 2px; }
+
+    .stats-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .stat {
+      background: var(--s1); border: 1px solid var(--bd); border-radius: 8px;
+      padding: 10px 16px; display: flex; align-items: baseline; gap: 8px;
+    }
+    .stat-n { font-family: var(--mono); font-size: 18px; color: var(--ac); }
+    .stat-l { font-size: 12px; color: var(--mu); }
+
+    .filters {
+      background: var(--s1); border: 1px solid var(--bd); border-radius: 10px;
+      padding: 14px; margin-bottom: 18px;
+    }
+    .search-box input {
+      width: 100%; background: var(--bg); border: 1px solid var(--bd); border-radius: 7px;
+      padding: 10px 14px; font-size: 13px; outline: none; margin-bottom: 12px;
+    }
+    .search-box input:focus { border-color: var(--ac); }
+    .filter-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .tabs { display: flex; gap: 5px; flex-wrap: wrap; }
+    .tabs button {
+      padding: 6px 12px; border-radius: 6px; font-size: 12px;
+      background: var(--bg); border: 1px solid var(--bd); color: var(--mu);
+    }
+    .tabs button.on { background: var(--ac); color: #070b10; border-color: var(--ac); font-weight: 500; }
+    .filter-right { display: flex; align-items: center; gap: 10px; }
+    .filter-right select {
+      background: var(--bg); border: 1px solid var(--bd); border-radius: 6px;
+      padding: 6px 10px; font-size: 12px; color: var(--mu);
+    }
+    .link { font-size: 12px; color: var(--mu); }
+    .link:hover, .link.on { color: var(--ac); }
+    .result-count { font-size: 12px; color: var(--dim); margin-top: 10px; }
+
+    .content-grid { display: grid; grid-template-columns: 1fr 300px; gap: 18px; align-items: start; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+    .card {
+      background: var(--s1); border: 1px solid var(--bd); border-radius: 10px;
+      padding: 14px; cursor: pointer; transition: 0.15s;
+    }
+    .card:hover { border-color: #3b4d66; background: var(--s2); }
+    .card.selected { border-color: var(--ac); box-shadow: 0 0 0 1px var(--ac); }
+    .card-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .id { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+    .star { font-size: 14px; color: var(--dim); }
+    .star.on { color: #fbbf24; }
+    .formula { font-family: var(--mono); font-size: 20px; color: var(--ac); margin-bottom: 4px; }
+    .name { font-size: 13px; font-weight: 500; }
+    .en { font-family: var(--mono); font-size: 11px; color: var(--mu); margin-bottom: 8px; }
+    .tags { display: flex; gap: 5px; font-size: 11px; }
+    .tags span { background: var(--bg); padding: 2px 7px; border-radius: 4px; color: var(--mu); }
+    .tags .dim { color: var(--dim); }
+
+    .empty {
+      grid-column: 1/-1; text-align: center; padding: 48px; color: var(--mu);
+      background: var(--s1); border: 1px dashed var(--bd); border-radius: 10px;
+    }
+    .empty .btn-primary { margin-top: 12px; }
+
+    .detail {
+      background: var(--s1); border: 1px solid var(--bd); border-radius: 12px;
+      padding: 20px; position: sticky; top: 72px;
+    }
+    .detail-top { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--dim); margin-bottom: 14px; }
+    .structure-box {
+      background: var(--bg); border: 1px solid var(--bd); border-radius: 8px;
+      padding: 14px; margin-bottom: 14px; text-align: center;
+    }
+    .mol-svg { width: 100%; max-width: 150px; height: auto; }
+    .structure-label { font-size: 10px; color: var(--dim); margin-top: 6px; font-family: var(--mono); }
+    .big-formula { font-family: var(--mono); font-size: 26px; color: var(--ac); margin-bottom: 6px; }
+    .detail-name { font-size: 17px; font-weight: 500; margin-bottom: 2px; }
+    .detail-en { font-family: var(--mono); font-size: 12px; color: var(--mu); margin-bottom: 10px; }
+    .meta-row { display: flex; gap: 6px; margin-bottom: 14px; }
+    .tag { font-size: 11px; background: var(--bg); border: 1px solid var(--bd); padding: 3px 8px; border-radius: 4px; color: var(--mu); }
+    .tag.muted { color: var(--dim); }
+
+    .props { margin-bottom: 14px; }
+    .prop { display: flex; justify-content: space-between; font-size: 13px; padding: 7px 0; border-bottom: 1px solid var(--bd); }
+    .prop span { color: var(--mu); }
+    .prop b { color: var(--ac); font-weight: 500; }
+
+    .strength { margin-bottom: 14px; }
+    .str-label { font-size: 11px; color: var(--mu); margin-bottom: 5px; }
+    .bar-track { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, #ef4444, #fbbf24, #34d399); border-radius: 3px; transition: width 0.3s; }
+    .str-ends { display: flex; justify-content: space-between; font-size: 9px; color: var(--dim); margin-top: 3px; font-family: var(--mono); }
+
+    .block { margin-bottom: 12px; }
+    .block-t { font-size: 11px; color: var(--ac); margin-bottom: 3px; font-weight: 500; }
+    .block p { font-size: 13px; color: var(--mu); line-height: 1.65; }
+    .block.hazard .block-t { color: #f87171; }
+    .note { font-size: 13px; color: var(--mu); line-height: 1.65; margin-bottom: 14px; }
+
+    .actions { display: flex; gap: 6px; margin-bottom: 8px; }
+    .actions button {
+      flex: 1; padding: 8px; background: var(--bg); border: 1px solid var(--bd);
+      border-radius: 6px; font-size: 12px; color: var(--mu);
+    }
+    .actions button:hover { border-color: var(--ac); color: var(--ac); }
+    .btn-block {
+      width: 100%; padding: 9px; background: var(--s2); border: 1px solid var(--bd);
+      border-radius: 6px; font-size: 13px; margin-bottom: 6px; color: var(--tx);
+    }
+    .btn-block:hover { border-color: var(--ac); }
+    .btn-block.accent { color: var(--ac); }
+    .disclaimer { font-size: 11px; color: var(--dim); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--bd); line-height: 1.5; }
+
+    .tool-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--bd); margin-bottom: 18px; }
+    .tool-tabs button {
+      padding: 10px 16px; font-size: 13px; color: var(--mu);
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .tool-tabs button.on { color: var(--ac); border-bottom-color: var(--ac); }
+    .panel {
+      background: var(--s1); border: 1px solid var(--bd); border-radius: 12px;
+      padding: 24px; margin-bottom: 16px;
+    }
+    .panel h2 { font-size: 17px; font-weight: 500; margin-bottom: 12px; }
+    .eq {
+      background: var(--bg); border: 1px solid var(--bd); border-radius: 8px;
+      padding: 12px 16px; font-family: var(--mono); font-size: 14px; color: var(--ac);
+      margin-bottom: 18px; direction: ltr; text-align: left;
+    }
+    .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+    .inputs.single { grid-template-columns: 1fr; max-width: 320px; }
+    .inputs label { font-size: 12px; color: var(--mu); display: block; }
+    .inputs input {
+      display: block; width: 100%; margin-top: 6px; background: var(--bg);
+      border: 1px solid var(--bd); border-radius: 7px; padding: 10px 12px;
+      font-size: 14px; font-family: var(--mono); color: var(--ac); outline: none; direction: ltr; text-align: left;
+    }
+    .inputs input:focus { border-color: var(--ac); }
+    .mode-switch { display: flex; gap: 6px; margin-bottom: 14px; }
+    .mode-switch button {
+      padding: 7px 14px; border-radius: 6px; font-size: 12px;
+      background: var(--bg); border: 1px solid var(--bd); color: var(--mu);
+    }
+    .mode-switch button.on { background: var(--ac); color: #070b10; border-color: var(--ac); font-weight: 500; }
+    .results { background: var(--bg); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; }
+    .main-result { padding: 18px; border-bottom: 1px solid var(--bd); }
+    .main-result.wide { border-bottom: none; }
+    .main-result span { display: block; font-size: 12px; color: var(--mu); margin-bottom: 4px; }
+    .main-result strong { font-family: var(--mono); font-size: 26px; color: var(--ac); }
+    .metrics { display: grid; grid-template-columns: repeat(3,1fr); padding: 14px 18px; gap: 12px; }
+    .metrics span { display: block; font-size: 11px; color: var(--mu); margin-bottom: 3px; }
+    .metrics b { font-family: var(--mono); font-size: 13px; }
+    .warn {
+      padding: 12px 16px; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 8px; color: #fca5a5; font-size: 13px;
+    }
+    .hint { font-size: 12px; color: var(--dim); margin-top: 12px; }
+    .science-note {
+      font-size: 13px; color: var(--mu); background: var(--s1); border: 1px solid var(--bd);
+      border-radius: 10px; padding: 14px 18px; line-height: 1.7;
+    }
+
+    .picker { background: var(--s1); border: 1px solid var(--bd); border-radius: 10px; padding: 16px; margin-bottom: 18px; }
+    .picker-title { font-size: 13px; color: var(--mu); margin-bottom: 12px; }
+    .picker-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 6px;
+      max-height: 280px; overflow-y: auto;
+    }
+    .picker-item {
+      display: flex; flex-direction: column; align-items: flex-start; padding: 10px;
+      background: var(--bg); border: 1px solid var(--bd); border-radius: 7px; text-align: start; transition: 0.15s;
+    }
+    .picker-item:hover { border-color: #3b4d66; }
+    .picker-item.picked { border-color: var(--ac); background: rgba(56,189,248,0.06); }
+    .pf { font-family: var(--mono); font-size: 14px; color: var(--ac); }
+    .picker-item span:last-child { font-size: 11px; color: var(--mu); margin-top: 2px; }
+
+    .comparison-result { background: var(--s1); border: 1px solid var(--bd); border-radius: 10px; padding: 20px; }
+    .comparison-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .comp-col { background: var(--bg); border: 1px solid var(--bd); border-radius: 8px; padding: 16px; }
+    .cf { font-family: var(--mono); font-size: 22px; color: var(--ac); margin-bottom: 6px; }
+    .comp-col h3 { font-size: 15px; margin-bottom: 2px; }
+    .ce { font-family: var(--mono); font-size: 11px; color: var(--mu); margin-bottom: 12px; }
+    .crow { display: flex; justify-content: space-between; font-size: 13px; padding: 7px 0; border-top: 1px solid var(--bd); }
+    .crow span { color: var(--mu); }
+    .comp-col p { font-size: 12px; color: var(--mu); margin-top: 10px; line-height: 1.6; }
+    .conclusion {
+      margin-top: 14px; padding: 12px 16px; background: rgba(56,189,248,0.06);
+      border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; font-size: 13px; color: var(--mu);
+    }
+    .conclusion strong { color: var(--ac); }
+    .empty-compare {
+      text-align: center; padding: 40px; color: var(--mu);
+      background: var(--s1); border: 1px dashed var(--bd); border-radius: 10px;
+    }
+
+    .about-page { display: flex; align-items: center; justify-content: center; padding: 40px 20px; min-height: 70vh; }
+    .about-card {
+      background: var(--s1); border: 1px solid var(--bd); border-radius: 16px;
+      padding: 40px; max-width: 420px; width: 100%; text-align: center;
+    }
+    .uni-logo { width: 80px; height: auto; margin-bottom: 14px; }
+    .uni-name { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+    .field { font-size: 13px; color: var(--mu); margin-bottom: 24px; }
+    .divider { height: 1px; background: var(--bd); margin-bottom: 24px; }
+    .person { margin-bottom: 22px; }
+    .person .role { font-size: 11px; color: var(--ac); margin-bottom: 5px; letter-spacing: 0.5px; }
+    .person .name { font-size: 18px; font-weight: 500; }
+    .person .name-en { font-size: 13px; color: var(--mu); font-family: var(--mono); margin-top: 2px; }
+    .person.student .name { font-size: 20px; }
+    .year { font-size: 12px; color: var(--dim); margin: 20px 0 14px; font-family: var(--mono); }
+    .thanks { font-size: 13px; color: var(--mu); line-height: 1.7; }
+
+    .btn-primary {
+      background: var(--ac); color: #070b10; padding: 9px 16px; border-radius: 7px;
+      font-size: 13px; font-weight: 500;
+    }
+    .btn-out {
+      border: 1px solid var(--bd); background: var(--s1); color: var(--mu);
+      padding: 8px 14px; border-radius: 7px; font-size: 12px;
+    }
+    .btn-out:hover { border-color: var(--ac); color: var(--ac); }
+
+    .footer {
+      border-top: 1px solid var(--bd); padding: 14px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px; color: var(--dim); font-family: var(--mono);
+    }
+    .sources { font-size: 10px; opacity: 0.85; }
+
+    .toast {
+      position: fixed; bottom: 24px; inset-inline-start: 24px; z-index: 100;
+      background: #0c4a6e; border: 1px solid #0284c7; color: #e0f2fe;
+      padding: 10px 18px; border-radius: 8px; font-size: 13px;
+    }
+    .toast-enter-active, .toast-leave-active { transition: 0.2s; }
+    .toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(8px); }
+
+    @media (max-width: 900px) {
+      .content-grid { grid-template-columns: 1fr; }
+      .detail { position: static; }
+      .comparison-cols { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr; }
+      .inputs { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .topnav { padding: 0 14px; gap: 12px; }
+      .main { padding: 16px 14px; }
+      .brand-sub { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const { createApp, ref, computed, watch } = Vue
+
+    createApp({
+      setup() {
+        const lang = ref('fa')
+        const page = ref('library')
+        const tool = ref('ph')
+
+        const t = computed(() => {
+          const d = {
+            fa: {
+              brand: 'Acid Atlas',
+              brandSub: '',
+              library: 'کتابخانه',
+              tools: 'ابزارها',
+              compare: 'مقایسه',
+              about: 'درباره',
+              compounds: 'ترکیب',
+              searchPlaceholder: 'جستجو: نام، فرمول، انگلیسی...',
+              all: 'همه',
+              mineral: 'معدنی',
+              organic: 'آلی',
+              strength: 'قدرت اسیدی',
+              sort: 'ترتیب',
+              clear: 'پاک کردن',
+              onlyFav: 'فقط علاقه‌مندی',
+              results: 'مورد',
+              export: 'خروجی CSV',
+              compound: 'ترکیب',
+              approxStructure: 'ساختار تقریبی',
+              formula: 'فرمول',
+              pka: 'pKa',
+              category: 'دسته',
+              type: 'نوع',
+              uses: 'کاربردهای مهم',
+              hazard: 'نکات ایمنی / خطر',
+              relativeStrength: 'قدرت نسبی (تقریبی)',
+              copyFormula: 'کپی فرمول',
+              saved: 'ذخیره‌شده',
+              save: 'ذخیره',
+              addCompare: 'افزودن به مقایسه',
+              useInPh: 'استفاده در محاسبه‌گر pH',
+              disclaimer: 'مقادیر pKa تقریبی‌اند و به دما و حلال وابسته‌اند.',
+              toolsTitle: 'ابزارهای محاسباتی',
+              toolsSub: 'محاسبه pH، تبدیل ثابت یونش و مقایسه قدرت اسیدی',
+              phCalc: 'محاسبه pH',
+              convert: 'تبدیل Ka ↔ pKa',
+              comparePka: 'مقایسه pKa',
+              phTitle: 'pH اسید ضعیف تک‌پروتونی',
+              conc: 'غلظت اولیه (M)',
+              invalid: 'مقادیر نامعتبر هستند.',
+              modelHint: 'مدل: حل معادله درجه دوم تعادل (فرض ایده‌آل)',
+              convertTitle: 'تبدیل ثابت یونش',
+              pkaToKa: 'pKa → Ka',
+              kaToPka: 'Ka → pKa',
+              valuePka: 'مقدار pKa',
+              valueKa: 'مقدار Ka',
+              compareTitle: 'مقایسه قدرت اسیدی',
+              stronger: 'اسید قوی‌تری است (pKa کمتر).',
+              equal: 'pKa برابر است.',
+              scienceNote: 'توجه علمی: محاسبات برای اسید ضعیف تک‌پروتونی و شرایط ایده‌آل است. اثر قدرت یونی، دما و تعادل‌های چندمرحله‌ای در نظر گرفته نشده.',
+              comparePage: 'مقایسه ترکیبات',
+              selectTwo: 'دو ترکیب را انتخاب کنید',
+              selected: 'انتخاب شده',
+              noResult: 'موردی یافت نشد.',
+              showAll: 'نمایش همه',
+              conclusion: 'بر اساس pKa تقریبی،',
+              isStronger: 'اسید قوی‌تری است.',
+              footer: '۱۴۰۵ شمسی / ۲۰۲۶ میلادی',
+              sources: 'منابع: CRC Handbook · Evans pKa Table · NIST · Harris Quantitative Chemical Analysis',
+              copied: 'فرمول کپی شد',
+              addedFav: 'به علاقه‌مندی‌ها اضافه شد',
+              removedFav: 'از علاقه‌مندی‌ها حذف شد',
+              onlyTwo: 'فقط دو ترکیب می‌توانید انتخاب کنید',
+              noPka: 'pKa برای این ترکیب ثبت نشده',
+              csvSaved: 'فایل CSV ذخیره شد',
+              supervisor: 'استاد راهنما',
+              student: 'دانشجو',
+              role: 'طراح، ایده‌پرداز و برنامه‌نویس',
+              uni: 'دانشگاه ارومیه',
+              field: 'کارشناسی شیمی کاربردی',
+              thanks: 'از همه کسانی که این پروژه را بررسی و بازخورد دادند صمیمانه سپاسگزاریم.'
+            },
+            en: {
+              brand: 'Acid Atlas',
+              brandSub: 'Open Chemistry Reference',
+              library: 'Library',
+              tools: 'Tools',
+              compare: 'Compare',
+              about: 'About',
+              compounds: 'compounds',
+              searchPlaceholder: 'Search: name, formula, English...',
+              all: 'All',
+              mineral: 'Mineral',
+              organic: 'Organic',
+              strength: 'Acid Strength',
+              sort: 'Sort',
+              clear: 'Clear',
+              onlyFav: 'Favorites only',
+              results: 'results',
+              export: 'Export CSV',
+              compound: 'Compound',
+              approxStructure: 'Approximate structure',
+              formula: 'Formula',
+              pka: 'pKa',
+              category: 'Category',
+              type: 'Type',
+              uses: 'Key applications',
+              hazard: 'Safety / Hazard notes',
+              relativeStrength: 'Relative strength (approx.)',
+              copyFormula: 'Copy formula',
+              saved: 'Saved',
+              save: 'Save',
+              addCompare: 'Add to compare',
+              useInPh: 'Use in pH calculator',
+              disclaimer: 'pKa values are approximate and depend on temperature and solvent.',
+              toolsTitle: 'Computational Tools',
+              toolsSub: 'pH calculation, ionization constant conversion and acid strength comparison',
+              phCalc: 'pH Calculator',
+              convert: 'Ka ↔ pKa Convert',
+              comparePka: 'Compare pKa',
+              phTitle: 'pH of weak monoprotic acid',
+              conc: 'Initial concentration (M)',
+              invalid: 'Invalid values.',
+              modelHint: 'Model: quadratic equilibrium solution (ideal assumptions)',
+              convertTitle: 'Ionization constant conversion',
+              pkaToKa: 'pKa → Ka',
+              kaToPka: 'Ka → pKa',
+              valuePka: 'pKa value',
+              valueKa: 'Ka value',
+              compareTitle: 'Acid strength comparison',
+              stronger: 'is the stronger acid (lower pKa).',
+              equal: 'pKa values are equal.',
+              scienceNote: 'Scientific note: Calculations assume a weak monoprotic acid under ideal conditions. Ionic strength, temperature and multi-step equilibria are not considered.',
+              comparePage: 'Compound Comparison',
+              selectTwo: 'Select exactly two compounds',
+              selected: 'selected',
+              noResult: 'No results found.',
+              showAll: 'Show all',
+              conclusion: 'Based on approximate pKa,',
+              isStronger: 'is the stronger acid.',
+              footer: '2026 AD / 1405 SH',
+              sources: 'Sources: CRC Handbook · Evans pKa Table · NIST · Harris Quantitative Chemical Analysis',
+              copied: 'Formula copied',
+              addedFav: 'Added to favorites',
+              removedFav: 'Removed from favorites',
+              onlyTwo: 'You can select only two compounds',
+              noPka: 'No pKa recorded for this compound',
+              csvSaved: 'CSV file saved',
+              supervisor: 'Supervisor',
+              student: 'Student',
+              role: 'Designer, Ideator & Developer',
+              uni: 'Urmia University',
+              field: 'BSc Applied Chemistry',
+              thanks: 'Sincere thanks to everyone who reviewed this project and provided feedback.'
+            }
+          }
+          return d[lang.value]
+        })
+
+        const acids = [
+          {id:1, name:{fa:'اسید کلریک',en:'Chloric acid'}, formula:'HClO₃', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'اکسیژن‌دار',en:'Oxoacid'}, pka:-1, pkaLabel:'≈ −۱', note:{fa:'اسید معدنی اکسیدکننده از خانواده اکسیژن‌دار کلر.',en:'Oxidizing inorganic oxoacid of chlorine.'}, uses:{fa:'سنتز ترکیبات کلردار',en:'Synthesis of chlorine compounds'}, hazard:{fa:'اکسیدکننده قوی',en:'Strong oxidizer'}, structure:'oxo'},
+          {id:2, name:{fa:'اسید کلرو',en:'Chlorous acid'}, formula:'HClO₂', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'اکسیژن‌دار',en:'Oxoacid'}, pka:1.94, pkaLabel:'۱٫۹۴', note:{fa:'اسید ناپایدار اکسیژن‌دار کلر.',en:'Unstable chlorine oxoacid.'}, uses:{fa:'مطالعات شیمیایی',en:'Chemical studies'}, hazard:{fa:'ناپایدار',en:'Unstable'}, structure:'oxo'},
+          {id:3, name:{fa:'اسید هیپوکلرو',en:'Hypochlorous acid'}, formula:'HClO', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'اکسیژن‌دار',en:'Oxoacid'}, pka:7.53, pkaLabel:'۷٫۵۳', note:{fa:'اسید ضعیف مهم در گندزدایی آب.',en:'Weak acid important in water disinfection.'}, uses:{fa:'ضدعفونی آب و پزشکی',en:'Water & medical disinfection'}, hazard:{fa:'محلول غلیظ خورنده',en:'Concentrated solutions corrosive'}, structure:'oxo'},
+          {id:4, name:{fa:'اسید پرکلریک',en:'Perchloric acid'}, formula:'HClO₄', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'اکسیژن‌دار',en:'Oxoacid'}, pka:-10, pkaLabel:'≈ −۱۰', note:{fa:'یکی از قوی‌ترین اسیدهای شناخته‌شده.',en:'One of the strongest known acids.'}, uses:{fa:'آنالیز و سنتز تخصصی',en:'Specialized analysis & synthesis'}, hazard:{fa:'بسیار خطرناک و اکسیدکننده',en:'Extremely hazardous oxidizer'}, structure:'oxo'},
+          {id:5, name:{fa:'اسید نیتریک',en:'Nitric acid'}, formula:'HNO₃', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'اکسیژن‌دار',en:'Oxoacid'}, pka:-1.4, pkaLabel:'≈ −۱٫۴', note:{fa:'اسید قوی و اکسیدکننده صنعتی.',en:'Strong industrial oxidizing acid.'}, uses:{fa:'کود، اچ فلزات، سنتز',en:'Fertilizers, metal etching, synthesis'}, hazard:{fa:'خورنده و بخارات سمی',en:'Corrosive with toxic fumes'}, structure:'oxo'},
+          {id:6, name:{fa:'اسید نیتروز',en:'Nitrous acid'}, formula:'HNO₂', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'اکسیژن‌دار',en:'Oxoacid'}, pka:3.16, pkaLabel:'۳٫۱۶', note:{fa:'اسید ضعیف ناپایدار نیتروژن.',en:'Weak unstable nitrogen acid.'}, uses:{fa:'دی‌آزوتاسیون',en:'Diazotization'}, hazard:{fa:'ناپایدار و گاز سمی',en:'Unstable, toxic gases'}, structure:'oxo'},
+          {id:7, name:{fa:'اسید سولفوریک',en:'Sulfuric acid'}, formula:'H₂SO₄', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'دوپروتونی',en:'Diprotic'}, pka:-3, pkaLabel:'≈ −۳ (اول)', note:{fa:'مهم‌ترین اسید صنعتی. یونش اول بسیار قوی.',en:'Most important industrial acid. First ionization very strong.'}, uses:{fa:'کود، باتری، پالایش نفت',en:'Fertilizers, batteries, refining'}, hazard:{fa:'خورنده بسیار شدید',en:'Extremely corrosive'}, structure:'oxo'},
+          {id:8, name:{fa:'اسید سولفورو',en:'Sulfurous acid'}, formula:'H₂SO₃', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'دوپروتونی',en:'Diprotic'}, pka:1.85, pkaLabel:'۱٫۸۵', note:{fa:'در تعادل محلول آبی SO₂.',en:'Present in aqueous SO₂ equilibria.'}, uses:{fa:'سفیدکننده و نگهدارنده',en:'Bleaching & preservative'}, hazard:{fa:'آزادسازی SO₂ تحریک‌کننده',en:'Releases irritating SO₂'}, structure:'oxo'},
+          {id:9, name:{fa:'اسید فسفریک',en:'Phosphoric acid'}, formula:'H₃PO₄', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'سه‌پروتونی',en:'Triprotic'}, pka:2.16, pkaLabel:'۲٫۱۶', note:{fa:'اسید سه‌پروتونی پرکاربرد.',en:'Widely used triprotic acid.'}, uses:{fa:'کود، نوشابه، بافر',en:'Fertilizers, soft drinks, buffers'}, hazard:{fa:'در غلظت بالا خورنده',en:'Corrosive at high concentration'}, structure:'oxo'},
+          {id:10, name:{fa:'اسید کربنیک',en:'Carbonic acid'}, formula:'H₂CO₃', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'دوپروتونی',en:'Diprotic'}, pka:6.35, pkaLabel:'۶٫۳۵', note:{fa:'در تعادل CO₂ محلول در آب.',en:'Involved in dissolved CO₂ equilibria.'}, uses:{fa:'بافر خون، نوشابه گازدار',en:'Blood buffer, carbonated drinks'}, hazard:{fa:'خطر کم',en:'Low hazard'}, structure:'oxo'},
+          {id:11, name:{fa:'اسید هیدروفلوئوریک',en:'Hydrofluoric acid'}, formula:'HF', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'هیدروهالیک',en:'Hydrohalic'}, pka:3.17, pkaLabel:'۳٫۱۷', note:{fa:'از نظر یونش ضعیف اما بسیار خطرناک.',en:'Weakly ionizing but extremely dangerous.'}, uses:{fa:'اچ شیشه، پالایش نفت',en:'Glass etching, refining'}, hazard:{fa:'نفوذ عمیق و سمیت سیستمیک',en:'Deep tissue penetration, systemic toxicity'}, structure:'binary'},
+          {id:12, name:{fa:'اسید هیدروکلریک',en:'Hydrochloric acid'}, formula:'HCl', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'هیدروهالیک',en:'Hydrohalic'}, pka:-6.3, pkaLabel:'≈ −۶٫۳', note:{fa:'اسید قوی تقریباً کامل یونیده.',en:'Strong acid almost fully ionized.'}, uses:{fa:'تنظیم pH، ترشی‌کاری فلزات',en:'pH control, metal pickling'}, hazard:{fa:'خورنده و بخارات تحریک‌کننده',en:'Corrosive with irritating vapors'}, structure:'binary'},
+          {id:13, name:{fa:'اسید هیدروبرومیک',en:'Hydrobromic acid'}, formula:'HBr', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'هیدروهالیک',en:'Hydrohalic'}, pka:-9, pkaLabel:'≈ −۹', note:{fa:'اسید قوی هیدروهالیک.',en:'Strong hydrohalic acid.'}, uses:{fa:'سنتز ترکیبات برم‌دار',en:'Bromine compound synthesis'}, hazard:{fa:'خورنده',en:'Corrosive'}, structure:'binary'},
+          {id:14, name:{fa:'اسید هیدرویدیک',en:'Hydroiodic acid'}, formula:'HI', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'هیدروهالیک',en:'Hydrohalic'}, pka:-10, pkaLabel:'≈ −۱۰', note:{fa:'یکی از قوی‌ترین اسیدهای هیدروهالیک.',en:'One of the strongest hydrohalic acids.'}, uses:{fa:'کاهش‌دهنده و سنتز یدید',en:'Reducing agent, iodide synthesis'}, hazard:{fa:'خورنده',en:'Corrosive'}, structure:'binary'},
+          {id:15, name:{fa:'اسید هیدروسیانیک',en:'Hydrocyanic acid'}, formula:'HCN', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'هیدروهالیک',en:'Hydrohalic'}, pka:9.21, pkaLabel:'۹٫۲۱', note:{fa:'اسید ضعیف اما بسیار سمی.',en:'Weak but highly toxic acid.'}, uses:{fa:'سنتز تخصصی',en:'Specialized synthesis'}, hazard:{fa:'بسیار سمی و کشنده',en:'Highly toxic and lethal'}, structure:'binary'},
+          {id:16, name:{fa:'اسید سولفیدریک',en:'Hydrosulfuric acid'}, formula:'H₂S', group:{fa:'معدنی',en:'Mineral'}, type:{fa:'دوپروتونی',en:'Diprotic'}, pka:7.05, pkaLabel:'۷٫۰۵', note:{fa:'گاز هیدروژن سولفید بسیار سمی.',en:'Hydrogen sulfide gas is highly toxic.'}, uses:{fa:'تحلیل شیمیایی',en:'Chemical analysis'}, hazard:{fa:'گاز بسیار سمی',en:'Extremely toxic gas'}, structure:'binary'},
+          {id:17, name:{fa:'اسید فرمیک',en:'Formic acid'}, formula:'HCOOH', group:{fa:'آلی',en:'Organic'}, type:{fa:'کربوکسیلیک',en:'Carboxylic'}, pka:3.75, pkaLabel:'۳٫۷۵', note:{fa:'ساده‌ترین اسید کربوکسیلیک.',en:'Simplest carboxylic acid.'}, uses:{fa:'چرم‌سازی و نگهدارنده',en:'Leather & preservative'}, hazard:{fa:'خورنده',en:'Corrosive'}, structure:'carboxyl'},
+          {id:18, name:{fa:'اسید استیک',en:'Acetic acid'}, formula:'CH₃COOH', group:{fa:'آلی',en:'Organic'}, type:{fa:'کربوکسیلیک',en:'Carboxylic'}, pka:4.76, pkaLabel:'۴٫۷۶', note:{fa:'جزء اصلی سرکه.',en:'Main component of vinegar.'}, uses:{fa:'غذایی، پلاستیک، حلال',en:'Food, plastics, solvent'}, hazard:{fa:'غلظت بالا خورنده',en:'High concentration corrosive'}, structure:'carboxyl'},
+          {id:19, name:{fa:'اسید پروپیونیک',en:'Propionic acid'}, formula:'C₂H₅COOH', group:{fa:'آلی',en:'Organic'}, type:{fa:'کربوکسیلیک',en:'Carboxylic'}, pka:4.87, pkaLabel:'۴٫۸۷', note:{fa:'اسید سه‌کربنه.',en:'Three-carbon carboxylic acid.'}, uses:{fa:'نگهدارنده غذایی',en:'Food preservative'}, hazard:{fa:'تحریک‌کننده',en:'Irritant'}, structure:'carboxyl'},
+          {id:20, name:{fa:'اسید بوتیریک',en:'Butyric acid'}, formula:'C₃H₇COOH', group:{fa:'آلی',en:'Organic'}, type:{fa:'کربوکسیلیک',en:'Carboxylic'}, pka:4.82, pkaLabel:'۴٫۸۲', note:{fa:'اسید چهارکربنه با بوی مشخص.',en:'Four-carbon acid with strong odor.'}, uses:{fa:'عطر و خوراک دام',en:'Perfume & animal feed'}, hazard:{fa:'بوی تند و تحریک‌کننده',en:'Strong odor & irritant'}, structure:'carboxyl'},
+          {id:21, name:{fa:'اسید بنزوئیک',en:'Benzoic acid'}, formula:'C₆H₅COOH', group:{fa:'آلی',en:'Organic'}, type:{fa:'آروماتیک',en:'Aromatic'}, pka:4.20, pkaLabel:'۴٫۲۰', note:{fa:'اسید کربوکسیلیک آروماتیک.',en:'Aromatic carboxylic acid.'}, uses:{fa:'نگهدارنده غذایی',en:'Food preservative'}, hazard:{fa:'تحریک‌کننده',en:'Irritant'}, structure:'aromatic'},
+          {id:22, name:{fa:'اسید اگزالیک',en:'Oxalic acid'}, formula:'H₂C₂O₄', group:{fa:'آلی',en:'Organic'}, type:{fa:'دوپروتونی',en:'Diprotic'}, pka:1.25, pkaLabel:'۱٫۲۵', note:{fa:'اسید دوپروتونی نسبتاً قوی.',en:'Relatively strong diprotic acid.'}, uses:{fa:'پاک‌کننده زنگ',en:'Rust remover'}, hazard:{fa:'سمی (کمپلکس با کلسیم)',en:'Toxic (calcium complex)'}, structure:'carboxyl'},
+          {id:23, name:{fa:'اسید لاکتیک',en:'Lactic acid'}, formula:'CH₃CH(OH)COOH', group:{fa:'آلی',en:'Organic'}, type:{fa:'هیدروکسی‌اسید',en:'Hydroxy acid'}, pka:3.86, pkaLabel:'۳٫۸۶', note:{fa:'اسید حاصل از تخمیر.',en:'Fermentation-derived acid.'}, uses:{fa:'غذایی و آرایشی',en:'Food & cosmetics'}, hazard:{fa:'تحریک در غلظت بالا',en:'Irritating at high conc.'}, structure:'carboxyl'},
+          {id:24, name:{fa:'اسید سیتریک',en:'Citric acid'}, formula:'C₆H₈O₇', group:{fa:'آلی',en:'Organic'}, type:{fa:'سه‌پروتونی',en:'Triprotic'}, pka:3.13, pkaLabel:'۳٫۱۳', note:{fa:'اسید طبیعی مرکبات.',en:'Natural acid from citrus.'}, uses:{fa:'غذایی، شوینده، دارو',en:'Food, detergent, pharma'}, hazard:{fa:'خطر کم',en:'Low hazard'}, structure:'carboxyl'},
+          {id:25, name:{fa:'اسید مالئیک',en:'Maleic acid'}, formula:'C₄H₄O₄', group:{fa:'آلی',en:'Organic'}, type:{fa:'دوپروتونی',en:'Diprotic'}, pka:1.90, pkaLabel:'۱٫۹۰', note:{fa:'اسید دی‌کربوکسیلیک سیس.',en:'Cis dicarboxylic acid.'}, uses:{fa:'رزین و کشاورزی',en:'Resins & agriculture'}, hazard:{fa:'تحریک‌کننده',en:'Irritant'}, structure:'carboxyl'},
+          {id:26, name:{fa:'اسید سالیسیلیک',en:'Salicylic acid'}, formula:'C₇H₆O₃', group:{fa:'آلی',en:'Organic'}, type:{fa:'آروماتیک',en:'Aromatic'}, pka:2.97, pkaLabel:'۲٫۹۷', note:{fa:'پیش‌ماده آسپرین.',en:'Aspirin precursor.'}, uses:{fa:'داروهای پوستی',en:'Dermatology'}, hazard:{fa:'تحریک پوست و سمی در بلع',en:'Skin irritant, toxic if ingested'}, structure:'aromatic'},
+          {id:27, name:{fa:'اسید پرکلریک',en:'Perchloric acid'}, formula:'HClO₄', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:-10, pkaLabel:'≈ −۱۰', note:{fa:'اسید بسیار قوی.',en:'Very strong acid.'}, uses:{fa:'آنالیز',en:'Analysis'}, hazard:{fa:'خطرناک',en:'Hazardous'}, structure:'oxo'},
+          {id:28, name:{fa:'اسید هیدروکلریک',en:'Hydrochloric acid'}, formula:'HCl', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:-6.3, pkaLabel:'≈ −۶٫۳', note:{fa:'اسید قوی کلاسیک.',en:'Classic strong acid.'}, uses:{fa:'صنعتی',en:'Industrial'}, hazard:{fa:'خورنده',en:'Corrosive'}, structure:'binary'},
+          {id:29, name:{fa:'اسید نیتریک',en:'Nitric acid'}, formula:'HNO₃', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:-1.4, pkaLabel:'≈ −۱٫۴', note:{fa:'اسید قوی اکسیدکننده.',en:'Strong oxidizing acid.'}, uses:{fa:'صنعتی',en:'Industrial'}, hazard:{fa:'خورنده',en:'Corrosive'}, structure:'oxo'},
+          {id:30, name:{fa:'اسید کلریک',en:'Chloric acid'}, formula:'HClO₃', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:-1, pkaLabel:'≈ −۱', note:{fa:'اکسیژن‌دار قوی کلر.',en:'Strong chlorine oxoacid.'}, uses:{fa:'مطالعات',en:'Studies'}, hazard:{fa:'اکسیدکننده',en:'Oxidizer'}, structure:'oxo'},
+          {id:31, name:{fa:'اسید کلرو',en:'Chlorous acid'}, formula:'HClO₂', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:1.94, pkaLabel:'۱٫۹۴', note:{fa:'در سری اکسیژن‌دار کلر.',en:'In chlorine oxoacid series.'}, uses:{fa:'مطالعات',en:'Studies'}, hazard:{fa:'ناپایدار',en:'Unstable'}, structure:'oxo'},
+          {id:32, name:{fa:'اسید سولفوریک (اول)',en:'Sulfuric acid (1st)'}, formula:'H₂SO₄', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'یونش اول',en:'First ionization'}, pka:-3, pkaLabel:'≈ −۳', note:{fa:'یونش اول بسیار قوی.',en:'First ionization very strong.'}, uses:{fa:'صنعتی',en:'Industrial'}, hazard:{fa:'خورنده شدید',en:'Highly corrosive'}, structure:'oxo'},
+          {id:33, name:{fa:'هیدروژن‌سولفات',en:'Hydrogen sulfate'}, formula:'HSO₄⁻', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'یونش دوم',en:'Second ionization'}, pka:1.99, pkaLabel:'۱٫۹۹', note:{fa:'مرحله دوم یونش سولفوریک.',en:'Second ionization of sulfuric acid.'}, uses:{fa:'بافر',en:'Buffers'}, hazard:{fa:'خورنده در غلظت بالا',en:'Corrosive at high conc.'}, structure:'oxo'},
+          {id:34, name:{fa:'اسید هیدروفلوئوریک',en:'Hydrofluoric acid'}, formula:'HF', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:3.17, pkaLabel:'۳٫۱۷', note:{fa:'ضعیف‌تر از سایر هیدروهالیک‌ها.',en:'Weaker than other hydrohalics.'}, uses:{fa:'اچ شیشه',en:'Glass etching'}, hazard:{fa:'بسیار خطرناک',en:'Extremely dangerous'}, structure:'binary'},
+          {id:35, name:{fa:'اسید نیتروز',en:'Nitrous acid'}, formula:'HNO₂', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:3.16, pkaLabel:'۳٫۱۶', note:{fa:'ضعیف‌تر از نیتریک.',en:'Weaker than nitric.'}, uses:{fa:'دی‌آزوتاسیون',en:'Diazotization'}, hazard:{fa:'ناپایدار',en:'Unstable'}, structure:'oxo'},
+          {id:36, name:{fa:'اسید فرمیک',en:'Formic acid'}, formula:'HCOOH', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:3.75, pkaLabel:'۳٫۷۵', note:{fa:'قوی‌تر از استیک.',en:'Stronger than acetic.'}, uses:{fa:'صنعتی',en:'Industrial'}, hazard:{fa:'خورنده',en:'Corrosive'}, structure:'carboxyl'},
+          {id:37, name:{fa:'اسید استیک',en:'Acetic acid'}, formula:'CH₃COOH', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:4.76, pkaLabel:'۴٫۷۶', note:{fa:'اسید کربوکسیلیک کلاسیک.',en:'Classic carboxylic acid.'}, uses:{fa:'غذایی و صنعتی',en:'Food & industrial'}, hazard:{fa:'خورنده در غلظت بالا',en:'Corrosive at high conc.'}, structure:'carboxyl'},
+          {id:38, name:{fa:'اسید کربنیک',en:'Carbonic acid'}, formula:'H₂CO₃', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:6.35, pkaLabel:'۶٫۳۵', note:{fa:'اسید ضعیف دو مرحله‌ای.',en:'Weak diprotic acid.'}, uses:{fa:'بافر بیولوژیکی',en:'Biological buffer'}, hazard:{fa:'خطر کم',en:'Low hazard'}, structure:'oxo'},
+          {id:39, name:{fa:'اسید هیپوکلرو',en:'Hypochlorous acid'}, formula:'HClO', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:7.53, pkaLabel:'۷٫۵۳', note:{fa:'اسید ضعیف اکسیژن‌دار.',en:'Weak oxoacid.'}, uses:{fa:'ضدعفونی',en:'Disinfection'}, hazard:{fa:'خورنده در غلظت بالا',en:'Corrosive at high conc.'}, structure:'oxo'},
+          {id:40, name:{fa:'اسید هیدروسیانیک',en:'Hydrocyanic acid'}, formula:'HCN', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'مقایسه',en:'Comparison'}, pka:9.21, pkaLabel:'۹٫۲۱', note:{fa:'ضعیف و بسیار سمی.',en:'Weak and highly toxic.'}, uses:{fa:'سنتز',en:'Synthesis'}, hazard:{fa:'بسیار سمی',en:'Highly toxic'}, structure:'binary'},
+          {id:41, name:{fa:'فنول',en:'Phenol'}, formula:'C₆H₅OH', group:{fa:'قدرت اسیدی',en:'Acid Strength'}, type:{fa:'فنولی',en:'Phenolic'}, pka:9.95, pkaLabel:'۹٫۹۵', note:{fa:'آروماتیک با خاصیت اسیدی ضعیف.',en:'Aromatic with weak acidity.'}, uses:{fa:'رزین و دارو',en:'Resins & pharma'}, hazard:{fa:'سمی و خورنده پوست',en:'Toxic & skin corrosive'}, structure:'aromatic'}
+        ]
+
+        const categories = computed(() => [
+          { key: 'همه', label: t.value.all },
+          { key: 'معدنی', label: t.value.mineral },
+          { key: 'آلی', label: t.value.organic },
+          { key: 'قدرت اسیدی', label: t.value.strength }
+        ])
+
+        const activeCategory = ref('همه')
+        const search = ref('')
+        const sortBy = ref('id')
+        const selectedId = ref(18)
+        const showFavoritesOnly = ref(false)
+        const favorites = ref([])
+        const compareIds = ref([])
+        const toast = ref('')
+
+        const concentration = ref(0.1)
+        const pKaInput = ref(4.76)
+        const convertMode = ref('pka-to-ka')
+        const convertValue = ref(4.76)
+        const comparePkaA = ref(3.75)
+        const comparePkaB = ref(4.76)
+        const compareNameA = ref('Formic acid')
+        const compareNameB = ref('Acetic acid')
+
+        const selectedAcid = computed(() => acids.find(a => a.id === selectedId.value) || acids[0])
+
+        const filteredAcids = computed(() => {
+          let list = acids.filter(a => {
+            const q = search.value.trim().toLowerCase()
+            const catOk = activeCategory.value === 'همه' || a.group.fa === activeCategory.value
+            const favOk = !showFavoritesOnly.value || favorites.value.includes(a.id)
+            const searchOk = !q || [a.name.fa, a.name.en, a.formula, a.type.fa, a.type.en].some(v => String(v).toLowerCase().includes(q))
+            return catOk && favOk && searchOk
+          })
+          if (sortBy.value === 'name') list.sort((a,b) => a.name.fa.localeCompare(b.name.fa, 'fa'))
+          if (sortBy.value === 'name-en') list.sort((a,b) => a.name.en.localeCompare(b.name.en))
+          if (sortBy.value === 'id') list.sort((a,b) => a.id - b.id)
+          return list
+        })
+
+        const compareAcids = computed(() => compareIds.value.map(id => acids.find(a => a.id === id)).filter(Boolean))
+
+        const acidCalc = computed(() => {
+          const C = Number(concentration.value)
+          const pKa = Number(pKaInput.value)
+          if (!Number.isFinite(C) || !Number.isFinite(pKa) || C <= 0) return null
+          const Ka = 10 ** (-pKa)
+          const H = (-Ka + Math.sqrt(Ka*Ka + 4*Ka*C)) / 2
+          if (!Number.isFinite(H) || H <= 0) return null
+          return { Ka, H, pH: -Math.log10(H), ionization: (H/C)*100 }
+        })
+
+        const converted = computed(() => {
+          const v = Number(convertValue.value)
+          if (!Number.isFinite(v)) return null
+          if (convertMode.value === 'pka-to-ka') return { label: 'Ka', value: 10 ** (-v) }
+          if (v <= 0) return null
+          return { label: 'pKa', value: -Math.log10(v) }
+        })
+
+        const comparisonText = computed(() => {
+          const a = Number(comparePkaA.value)
+          const b = Number(comparePkaB.value)
+          if (!Number.isFinite(a) || !Number.isFinite(b)) return null
+          if (a === b) return t.value.equal
+          return a < b ? `${compareNameA.value} ${t.value.stronger}` : `${compareNameB.value} ${t.value.stronger}`
+        })
+
+        const stats = computed(() => ({
+          total: acids.length,
+          mineral: acids.filter(a => a.group.fa === 'معدنی').length,
+          organic: acids.filter(a => a.group.fa === 'آلی').length,
+          strength: acids.filter(a => a.group.fa === 'قدرت اسیدی').length
+        }))
+
+        function notify(msg) {
+          toast.value = msg
+          clearTimeout(notify._t)
+          notify._t = setTimeout(() => toast.value = '', 2200)
+        }
+
+        function selectAcid(a) {
+          selectedId.value = a.id
+          page.value = 'library'
+        }
+
+        function toggleFavorite(id) {
+          const has = favorites.value.includes(id)
+          favorites.value = has ? favorites.value.filter(x => x !== id) : [...favorites.value, id]
+          notify(has ? t.value.removedFav : t.value.addedFav)
+        }
+
+        function toggleCompare(id) {
+          if (compareIds.value.includes(id)) {
+            compareIds.value = compareIds.value.filter(x => x !== id)
+            return
+          }
+          if (compareIds.value.length >= 2) {
+            notify(t.value.onlyTwo)
+            return
+          }
+          compareIds.value = [...compareIds.value, id]
+        }
+
+        async function copyFormula(f) {
+          try {
+            await navigator.clipboard.writeText(f)
+            notify(t.value.copied)
+          } catch {
+            notify('Copy not available')
+          }
+        }
+
+        function exportCsv() {
+          const rows = [
+            ['id','name_fa','name_en','formula','group','type','pKa'],
+            ...filteredAcids.value.map(a => [a.id, a.name.fa, a.name.en, a.formula, a.group.fa, a.type.fa, a.pka ?? ''])
+          ]
+          const csv = '\uFEFF' + rows.map(r => r.map(v => `"${String(v).replaceAll('"','""')}"`).join(',')).join('\n')
+          const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'})
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'acid-atlas.csv'
+          a.click()
+          URL.revokeObjectURL(url)
+          notify(t.value.csvSaved)
+        }
+
+        function resetFilters() {
+          search.value = ''
+          activeCategory.value = 'همه'
+          showFavoritesOnly.value = false
+          sortBy.value = 'id'
+        }
+
+        function useAcidPka(a) {
+          if (a.pka == null) {
+            notify(t.value.noPka)
+            return
+          }
+          pKaInput.value = a.pka
+          tool.value = 'ph'
+          page.value = 'tools'
+        }
+
+        function formatSci(n) {
+          if (!Number.isFinite(n) || n === 0) return null
+          const exp = Math.floor(Math.log10(Math.abs(n)))
+          const coef = n / 10 ** exp
+          return { coef: coef.toFixed(2), exp }
+        }
+
+        function toggleLang() {
+          lang.value = lang.value === 'fa' ? 'en' : 'fa'
+        }
+
+        watch(favorites, v => {
+          try { localStorage.setItem('acid-atlas-fav', JSON.stringify(v)) } catch {}
+        }, { deep: true })
+
+        try {
+          favorites.value = JSON.parse(localStorage.getItem('acid-atlas-fav') || '[]')
+        } catch { favorites.value = [] }
+
+        return {
+          lang, page, tool, t, acids, categories, activeCategory, search, sortBy,
+          selectedId, showFavoritesOnly, favorites, compareIds, toast,
+          concentration, pKaInput, convertMode, convertValue,
+          comparePkaA, comparePkaB, compareNameA, compareNameB,
+          selectedAcid, filteredAcids, compareAcids, acidCalc, converted,
+          comparisonText, stats,
+          notify, selectAcid, toggleFavorite, toggleCompare, copyFormula,
+          exportCsv, resetFilters, useAcidPka, formatSci, toggleLang
+        }
+      },
+      template: `
+        <div class="app" :dir="lang === 'fa' ? 'rtl' : 'ltr'">
+          <header class="topnav">
+            <div class="brand" @click="page = 'library'">
+              <div class="logo">H<sup>+</sup></div>
+              <div>
+                <div class="brand-title">{{ t.brand }}</div>
+                <div class="brand-sub">{{ t.brandSub }}</div>
+              </div>
+            </div>
+
+            <nav class="nav-links">
+              <button :class="{active: page==='library'}" @click="page='library'; showFavoritesOnly=false">{{ t.library }}</button>
+              <button :class="{active: page==='tools'}" @click="page='tools'">{{ t.tools }}</button>
+              <button :class="{active: page==='compare'}" @click="page='compare'">{{ t.compare }}</button>
+              <button :class="{active: page==='about'}" @click="page='about'">{{ t.about }}</button>
+            </nav>
+
+            <div class="top-actions">
+              <button class="lang-btn" @click="toggleLang">{{ lang === 'fa' ? 'EN' : 'FA' }}</button>
+              <span class="count">{{ acids.length }} {{ t.compounds }}</span>
+            </div>
+          </header>
+
+          <main class="main">
+            <template v-if="page === 'library'">
+              <div class="page-header">
+                <div>
+                  <h1>{{ t.library }}</h1>
+                  <p class="subtitle">{{ lang==='fa' ? 'مرجع ساخت‌یافته اسیدها برای آموزش و پژوهش' : 'Structured acid reference for education and research' }}</p>
+                </div>
+                <button class="btn-out" @click="exportCsv">↓ {{ t.export }}</button>
+              </div>
+
+              <div class="stats-row">
+                <div class="stat"><span class="stat-n">{{ stats.total }}</span><span class="stat-l">{{ lang==='fa'?'کل':'Total' }}</span></div>
+                <div class="stat"><span class="stat-n">{{ stats.mineral }}</span><span class="stat-l">{{ t.mineral }}</span></div>
+                <div class="stat"><span class="stat-n">{{ stats.organic }}</span><span class="stat-l">{{ t.organic }}</span></div>
+                <div class="stat"><span class="stat-n">{{ stats.strength }}</span><span class="stat-l">{{ t.strength }}</span></div>
+              </div>
+
+              <div class="filters">
+                <div class="search-box">
+                  <input v-model="search" :placeholder="t.searchPlaceholder" />
+                </div>
+                <div class="filter-bar">
+                  <div class="tabs">
+                    <button v-for="c in categories" :key="c.key" :class="{on: activeCategory===c.key}" @click="activeCategory=c.key; showFavoritesOnly=false">{{ c.label }}</button>
+                  </div>
+                  <div class="filter-right">
+                    <select v-model="sortBy">
+                      <option value="id">{{ t.sort }}</option>
+                      <option value="name">{{ lang==='fa'?'نام فارسی':'Persian name' }}</option>
+                      <option value="name-en">{{ lang==='fa'?'نام انگلیسی':'English name' }}</option>
+                    </select>
+                    <button class="link" @click="resetFilters">{{ t.clear }}</button>
+                    <button class="link" :class="{on: showFavoritesOnly}" @click="showFavoritesOnly=!showFavoritesOnly">★ {{ t.onlyFav }}</button>
+                  </div>
+                </div>
+                <div class="result-count">{{ filteredAcids.length }} {{ t.results }}</div>
+              </div>
+
+              <div class="content-grid">
+                <div class="cards">
+                  <article v-for="a in filteredAcids" :key="a.id" class="card" :class="{selected: selectedId===a.id}" @click="selectAcid(a)">
+                    <div class="card-top">
+                      <span class="id">#{{ String(a.id).padStart(2,'0') }}</span>
+                      <button class="star" :class="{on: favorites.includes(a.id)}" @click.stop="toggleFavorite(a.id)">{{ favorites.includes(a.id)?'★':'☆' }}</button>
+                    </div>
+                    <div class="formula" dir="ltr">{{ a.formula }}</div>
+                    <div class="name">{{ a.name[lang] }}</div>
+                    <div class="en" dir="ltr">{{ a.name.en }}</div>
+                    <div class="tags">
+                      <span>{{ a.group[lang] }}</span>
+                      <span class="dim">{{ a.type[lang] }}</span>
+                    </div>
+                  </article>
+                  <div v-if="!filteredAcids.length" class="empty">
+                    {{ t.noResult }}
+                    <button class="btn-primary" @click="resetFilters">{{ t.showAll }}</button>
+                  </div>
+                </div>
+
+                <aside class="detail" v-if="selectedAcid">
+                  <div class="detail-top">
+                    <span>{{ t.compound }}</span>
+                    <span>#{{ String(selectedAcid.id).padStart(2,'0') }}</span>
+                  </div>
+
+                  <div class="structure-box">
+                    <svg v-if="selectedAcid.structure==='carboxyl'" viewBox="0 0 160 100" class="mol-svg">
+                      <line x1="20" y1="50" x2="50" y2="50" stroke="#64748b" stroke-width="3"/>
+                      <circle cx="10" cy="50" r="10" fill="#94a3b8"/>
+                      <text x="10" y="54" text-anchor="middle" fill="#0f172a" font-size="11" font-family="monospace">R</text>
+                      <circle cx="65" cy="50" r="14" fill="#3b82f6"/>
+                      <text x="65" y="55" text-anchor="middle" fill="#fff" font-size="13" font-family="monospace">C</text>
+                      <line x1="79" y1="50" x2="100" y2="50" stroke="#64748b" stroke-width="3"/>
+                      <circle cx="115" cy="50" r="14" fill="#ef4444"/>
+                      <text x="115" y="55" text-anchor="middle" fill="#fff" font-size="13" font-family="monospace">O</text>
+                      <line x1="65" y1="36" x2="65" y2="18" stroke="#64748b" stroke-width="3"/>
+                      <circle cx="65" cy="8" r="12" fill="#ef4444"/>
+                      <text x="65" y="12" text-anchor="middle" fill="#fff" font-size="12" font-family="monospace">O</text>
+                      <line x1="129" y1="50" x2="145" y2="50" stroke="#64748b" stroke-width="3"/>
+                      <circle cx="155" cy="50" r="10" fill="#e2e8f0"/>
+                      <text x="155" y="54" text-anchor="middle" fill="#0f172a" font-size="11" font-family="monospace">H</text>
+                    </svg>
+                    <svg v-else-if="selectedAcid.structure==='binary'" viewBox="0 0 120 70" class="mol-svg">
+                      <circle cx="30" cy="35" r="16" fill="#e2e8f0"/>
+                      <text x="30" y="40" text-anchor="middle" fill="#0f172a" font-size="15" font-family="monospace">H</text>
+                      <line x1="46" y1="35" x2="70" y2="35" stroke="#64748b" stroke-width="4"/>
+                      <circle cx="90" cy="35" r="18" fill="#3b82f6"/>
+                      <text x="90" y="40" text-anchor="middle" fill="#fff" font-size="14" font-family="monospace">X</text>
+                    </svg>
+                    <svg v-else-if="selectedAcid.structure==='aromatic'" viewBox="0 0 120 120" class="mol-svg">
+                      <polygon points="60,15 95,35 95,75 60,95 25,75 25,35" fill="none" stroke="#64748b" stroke-width="2.5"/>
+                      <circle cx="60" cy="15" r="7" fill="#64748b"/>
+                      <circle cx="95" cy="35" r="7" fill="#64748b"/>
+                      <circle cx="95" cy="75" r="7" fill="#64748b"/>
+                      <circle cx="60" cy="95" r="7" fill="#64748b"/>
+                      <circle cx="25" cy="75" r="7" fill="#64748b"/>
+                      <circle cx="25" cy="35" r="7" fill="#64748b"/>
+                      <line x1="60" y1="95" x2="60" y2="108" stroke="#64748b" stroke-width="2.5"/>
+                      <circle cx="60" cy="118" r="10" fill="#ef4444"/>
+                      <text x="60" y="122" text-anchor="middle" fill="#fff" font-size="9" font-family="monospace">OH</text>
+                    </svg>
+                    <svg v-else viewBox="0 0 140 90" class="mol-svg">
+                      <circle cx="70" cy="45" r="18" fill="#3b82f6"/>
+                      <text x="70" y="50" text-anchor="middle" fill="#fff" font-size="14" font-family="monospace">X</text>
+                      <circle cx="30" cy="25" r="12" fill="#ef4444"/>
+                      <text x="30" y="29" text-anchor="middle" fill="#fff" font-size="11" font-family="monospace">O</text>
+                      <circle cx="110" cy="25" r="12" fill="#ef4444"/>
+                      <text x="110" y="29" text-anchor="middle" fill="#fff" font-size="11" font-family="monospace">O</text>
+                      <circle cx="70" cy="78" r="11" fill="#e2e8f0"/>
+                      <text x="70" y="82" text-anchor="middle" fill="#0f172a" font-size="11" font-family="monospace">H</text>
+                      <line x1="55" y1="35" x2="40" y2="28" stroke="#64748b" stroke-width="2"/>
+                      <line x1="85" y1="35" x2="100" y2="28" stroke="#64748b" stroke-width="2"/>
+                      <line x1="70" y1="63" x2="70" y2="67" stroke="#64748b" stroke-width="2"/>
+                    </svg>
+                    <div class="structure-label">{{ t.approxStructure }}</div>
+                  </div>
+
+                  <div class="big-formula" dir="ltr">{{ selectedAcid.formula }}</div>
+                  <h2 class="detail-name">{{ selectedAcid.name[lang] }}</h2>
+                  <div class="detail-en" dir="ltr">{{ selectedAcid.name.en }}</div>
+
+                  <div class="meta-row">
+                    <span class="tag">{{ selectedAcid.group[lang] }}</span>
+                    <span class="tag muted">{{ selectedAcid.type[lang] }}</span>
+                  </div>
+
+                  <div class="props">
+                    <div class="prop"><span>{{ t.formula }}</span><b dir="ltr">{{ selectedAcid.formula }}</b></div>
+                    <div class="prop"><span>{{ t.pka }}</span><b>{{ selectedAcid.pkaLabel }}</b></div>
+                    <div class="prop"><span>{{ t.category }}</span><b>{{ selectedAcid.group[lang] }}</b></div>
+                    <div class="prop"><span>{{ t.type }}</span><b>{{ selectedAcid.type[lang] }}</b></div>
+                  </div>
+
+                  <div class="strength" v-if="selectedAcid.pka != null">
+                    <div class="str-label">{{ t.relativeStrength }}</div>
+                    <div class="bar-track">
+                      <div class="bar-fill" :style="{ width: Math.max(4, Math.min(100, (14 - selectedAcid.pka) / 14 * 100)) + '%' }"></div>
+                    </div>
+                    <div class="str-ends"><span>strong</span><span>weak</span></div>
+                  </div>
+
+                  <div class="block">
+                    <div class="block-t">{{ t.uses }}</div>
+                    <p>{{ selectedAcid.uses[lang] }}</p>
+                  </div>
+                  <div class="block hazard">
+                    <div class="block-t">{{ t.hazard }}</div>
+                    <p>{{ selectedAcid.hazard[lang] }}</p>
+                  </div>
+                  <p class="note">{{ selectedAcid.note[lang] }}</p>
+
+                  <div class="actions">
+                    <button @click="copyFormula(selectedAcid.formula)">{{ t.copyFormula }}</button>
+                    <button @click="toggleFavorite(selectedAcid.id)">{{ favorites.includes(selectedAcid.id) ? '★ '+t.saved : '☆ '+t.save }}</button>
+                  </div>
+                  <button class="btn-block" @click="toggleCompare(selectedAcid.id)">{{ t.addCompare }}</button>
+                  <button v-if="selectedAcid.pka != null" class="btn-block accent" @click="useAcidPka(selectedAcid)">{{ t.useInPh }}</button>
+                  <p class="disclaimer">{{ t.disclaimer }}</p>
+                </aside>
+              </div>
+            </template>
+
+            <section v-else-if="page==='tools'" class="tools-page">
+              <div class="page-header">
+                <div>
+                  <h1>{{ t.toolsTitle }}</h1>
+                  <p class="subtitle">{{ t.toolsSub }}</p>
+                </div>
+              </div>
+
+              <div class="tool-tabs">
+                <button :class="{on: tool==='ph'}" @click="tool='ph'">{{ t.phCalc }}</button>
+                <button :class="{on: tool==='convert'}" @click="tool='convert'">{{ t.convert }}</button>
+                <button :class="{on: tool==='compare'}" @click="tool='compare'">{{ t.comparePka }}</button>
+              </div>
+
+              <div v-if="tool==='ph'" class="panel">
+                <h2>{{ t.phTitle }}</h2>
+                <div class="eq" dir="ltr">HA ⇌ H⁺ + A⁻ &nbsp;|&nbsp; Ka = [H⁺][A⁻]/[HA]</div>
+                <div class="inputs">
+                  <label>{{ t.conc }}<input type="number" v-model.number="concentration" step="any" min="1e-6" /></label>
+                  <label>pKa<input type="number" v-model.number="pKaInput" step="any" /></label>
+                </div>
+                <div v-if="acidCalc" class="results">
+                  <div class="main-result"><span>pH</span><strong>{{ acidCalc.pH.toFixed(3) }}</strong></div>
+                  <div class="metrics">
+                    <div><span>Ka</span><b dir="ltr" v-if="formatSci(acidCalc.Ka)">{{ formatSci(acidCalc.Ka).coef }} × 10<sup>{{ formatSci(acidCalc.Ka).exp }}</sup></b></div>
+                    <div><span>[H⁺]</span><b dir="ltr" v-if="formatSci(acidCalc.H)">{{ formatSci(acidCalc.H).coef }} × 10<sup>{{ formatSci(acidCalc.H).exp }}</sup></b></div>
+                    <div><span>{{ lang==='fa'?'درصد یونش':'% ionization' }}</span><b>{{ acidCalc.ionization.toFixed(2) }}%</b></div>
+                  </div>
+                </div>
+                <div v-else class="warn">{{ t.invalid }}</div>
+                <p class="hint">{{ t.modelHint }}</p>
+              </div>
+
+              <div v-else-if="tool==='convert'" class="panel">
+                <h2>{{ t.convertTitle }}</h2>
+                <div class="eq" dir="ltr">pKa = −log₁₀(Ka) &nbsp;|&nbsp; Ka = 10<sup>−pKa</sup></div>
+                <div class="mode-switch">
+                  <button :class="{on: convertMode==='pka-to-ka'}" @click="convertMode='pka-to-ka'; convertValue=4.76">{{ t.pkaToKa }}</button>
+                  <button :class="{on: convertMode==='ka-to-pka'}" @click="convertMode='ka-to-pka'; convertValue=1.74e-5">{{ t.kaToPka }}</button>
+                </div>
+                <div class="inputs single">
+                  <label>{{ convertMode==='pka-to-ka' ? t.valuePka : t.valueKa }}
+                    <input type="number" v-model.number="convertValue" step="any" />
+                  </label>
+                </div>
+                <div v-if="converted" class="results">
+                  <div class="main-result">
+                    <span>{{ converted.label }}</span>
+                    <strong dir="ltr">
+                      <template v-if="convertMode==='pka-to-ka' && formatSci(converted.value)">
+                        {{ formatSci(converted.value).coef }} × 10<sup>{{ formatSci(converted.value).exp }}</sup>
+                      </template>
+                      <template v-else>{{ Number(converted.value).toFixed(3) }}</template>
+                    </strong>
+                  </div>
+                </div>
+                <div v-else class="warn">{{ t.invalid }}</div>
+              </div>
+
+              <div v-else class="panel">
+                <h2>{{ t.compareTitle }}</h2>
+                <div class="eq">{{ lang==='fa' ? 'pKa کمتر ← اسید قوی‌تر' : 'Lower pKa → stronger acid' }}</div>
+                <div class="inputs">
+                  <label>{{ lang==='fa'?'نام اسید ۱':'Acid 1 name' }}<input v-model="compareNameA" /></label>
+                  <label>{{ lang==='fa'?'نام اسید ۲':'Acid 2 name' }}<input v-model="compareNameB" /></label>
+                  <label>pKa ۱<input type="number" v-model.number="comparePkaA" step="any" /></label>
+                  <label>pKa ۲<input type="number" v-model.number="comparePkaB" step="any" /></label>
+                </div>
+                <div v-if="comparisonText" class="results">
+                  <div class="main-result wide"><span>{{ lang==='fa'?'نتیجه':'Result' }}</span><strong>{{ comparisonText }}</strong></div>
+                </div>
+              </div>
+
+              <div class="science-note">{{ t.scienceNote }}</div>
+            </section>
+
+            <section v-else-if="page==='compare'" class="compare-page">
+              <div class="page-header">
+                <div>
+                  <h1>{{ t.comparePage }}</h1>
+                  <p class="subtitle">{{ t.selectTwo }}</p>
+                </div>
+              </div>
+              <div class="picker">
+                <div class="picker-title">{{ compareIds.length }}/2 {{ t.selected }}</div>
+                <div class="picker-grid">
+                  <button v-for="a in acids" :key="a.id" class="picker-item" :class="{picked: compareIds.includes(a.id)}" @click="toggleCompare(a.id)">
+                    <span class="pf" dir="ltr">{{ a.formula }}</span>
+                    <span>{{ a.name[lang] }}</span>
+                  </button>
+                </div>
+              </div>
+              <div v-if="compareAcids.length===2" class="comparison-result">
+                <div class="comparison-cols">
+                  <div v-for="a in compareAcids" :key="a.id" class="comp-col">
+                    <div class="cf" dir="ltr">{{ a.formula }}</div>
+                    <h3>{{ a.name[lang] }}</h3>
+                    <div class="ce" dir="ltr">{{ a.name.en }}</div>
+                    <div class="crow"><span>{{ t.category }}</span><b>{{ a.group[lang] }}</b></div>
+                    <div class="crow"><span>{{ t.type }}</span><b>{{ a.type[lang] }}</b></div>
+                    <div class="crow"><span>pKa</span><b>{{ a.pkaLabel }}</b></div>
+                    <p>{{ a.note[lang] }}</p>
+                  </div>
+                </div>
+                <div class="conclusion" v-if="compareAcids.every(x => x.pka != null)">
+                  {{ t.conclusion }}
+                  <strong>{{ compareAcids[0].pka < compareAcids[1].pka ? compareAcids[0].name[lang] : compareAcids[1].name[lang] }}</strong>
+                  {{ t.isStronger }}
+                </div>
+              </div>
+              <div v-else class="empty-compare">{{ t.selectTwo }}</div>
+            </section>
+
+            <section v-else-if="page==='about'" class="about-page">
+              <div class="about-card">
+                <div class="uni-name">{{ t.uni }}</div>
+                <div class="field">{{ t.field }}</div>
+                <div class="divider"></div>
+
+                <div class="person">
+                  <div class="role">{{ t.supervisor }}</div>
+                  <div class="name">دکتر علی بهادری</div>
+                  <div class="name-en">Dr. Ali Bahadori</div>
+                </div>
+
+                <div class="person student">
+                  <div class="role">{{ t.student }} · {{ t.role }}</div>
+                  <div class="name">محمد امین صحرایی</div>
+                  <div class="name-en">Mohammad Amin Sahraei</div>
+                </div>
+
+                <div class="year">{{ t.footer }}</div>
+                <p class="thanks">{{ t.thanks }}</p>
+              </div>
+            </section>
+          </main>
+
+          <footer class="footer">
+            <span>Acid Atlas · {{ t.footer }}</span>
+            <span class="sources">{{ t.sources }}</span>
+          </footer>
+
+          <div v-if="toast" class="toast">{{ toast }}</div>
+        </div>
+      `
+    }).mount('#app')
+  </script>
+</body>
+</html>
